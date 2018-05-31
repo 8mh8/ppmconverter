@@ -1,6 +1,9 @@
 '''
 mh8 - May 2018
 
+Testing commits and remote stuff with git. Added this one line of comments.
+This didn't seem to commit. Trying again.
+
 This program expects a ppm file for a 24x24 pixel image exported in ASCII format
 and dumps array list data for writing with arduino to a 24x24 ledmatrix
 
