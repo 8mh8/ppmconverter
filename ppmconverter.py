@@ -20,7 +20,7 @@ It writes a file using the same name as the ppm file name giving two blocks that
 from appJar import gui
 
 #create GUI variable
-app = gui("PPM Converter", "400x200")
+app = gui("PPM Converter", "600x400")
 app.setFont(10)
 
 app.addLabel("title", "Welcome to ppmconverter")
@@ -37,15 +37,11 @@ def press(button):
         app.stop()
     elif button == "OK":
         filename = app.getEntry("Filename :")
-        print("Got filename : ", filename)
         process(filename)
 
 app.addButtons(["OK", "Cancel"], press)
 
 def process(theFile):
-    #Point to desired file here
-    #theFile = "/home/mh/ppmconverter/Papilusion.ppm"
-
     #create an array to receive the lines from the file
     imageDump = []
 
@@ -85,6 +81,7 @@ def process(theFile):
             identifiedColors.append(v)
 
     #Send back some info
+    #RECODE THIS TO GUI
     #print("\nReading file : " + theFile)
     print("\nNumber of colors : " + str(len(identifiedColors)))
 
@@ -163,9 +160,11 @@ def process(theFile):
             self.name = name + str(id)
             self.index_array = [x for x, y in index.items() if y == id] if index else []
 
-    #This slice only works when pointing on my computer.. static code.
-    #theName = theFile[22:-4:1]
-    theName = "test"
+    #Slice name to extract a name to use
+    splitName = theFile.split("/")#Split the filename
+    theName = splitName[len(splitName)-1]#Keep only the last part
+    theName = theName[:-4]#Remove the .ppm at the end
+
     print("Using variable name : %s\n" % theName)
 
     #List comprehension to fill the lists with the values from arduinoIndex dictionary
@@ -173,9 +172,6 @@ def process(theFile):
 
     for c in result:
         print("Color %s : %s - Pixels : %d" % (c.id, c.color, len(c.index_array)))
-
-    #Unrequired atm
-    #thePlace = theName
 
     with open(theName, 'w') as f:
         f.write("Copy/Paste this part before your setup():\n\n")
@@ -195,11 +191,7 @@ def process(theFile):
         f.write("\nmatrix.fillScreen(0);")
 
 
-
-
-
-
-
+#Launch the GUI
 app.go()
 
 
