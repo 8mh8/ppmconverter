@@ -1,9 +1,6 @@
 '''
 mh8 - May 2018
 
-Testing commits and remote stuff with git. Added this one line of comments.
-This didn't seem to commit. Trying again.
-
 This program expects a ppm file for a 24x24 pixel image exported in ASCII format
 and dumps array list data for writing with arduino to a 24x24 ledmatrix
 
@@ -18,6 +15,9 @@ the ppm is read from top to bottom, left to right
 the matrix is read from bottom right to top left, by sub-matrixs of 8x8. 9 of them in total.
 It writes a file using the same name as the ppm file name giving two blocks that can be pasted in the arduino code to display the pixel art.
 '''
+
+#import libs
+from appJar import gui
 
 #Point to desired file here
 theFile = 'ppm/Papilusion.ppm'
