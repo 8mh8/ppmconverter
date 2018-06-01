@@ -23,25 +23,30 @@ from appJar import gui
 app = gui("PPM Converter", "600x400")
 app.setFont(10)
 
-app.addLabel("title", "Welcome to ppmconverter")
+app.addLabel("title", "Welcome to ppmconverter", colspan=3)
 app.setLabelBg("title", "green")
 
 #Get the file and process it
-app.addFileEntry("Filename :")
+app.addFileEntry("Filename :", colspan=3)
 app.setFocus("Filename :")
 
 
 #Add buttons
 def press(button):
-    if button == "Cancel":
+    if button == "Exit":
         app.stop()
     elif button == "OK":
         filename = app.getEntry("Filename :")
         process(filename)
 
-app.addButtons(["OK", "Cancel"], press)
+app.addButtons(["OK", "Exit"], press, colspan=3)
 
 def process(theFile):
+    #Slice name to extract a name to use
+    splitName = theFile.split("/")#Split the filename
+    theName = splitName[len(splitName)-1]#Keep only the last part
+    theName = theName[:-4]#Remove the .ppm at the end
+
     #create an array to receive the lines from the file
     imageDump = []
 
@@ -80,10 +85,7 @@ def process(theFile):
         else:
             identifiedColors.append(v)
 
-    #Send back some info
-    #RECODE THIS TO GUI
-    #print("\nReading file : " + theFile)
-    print("\nNumber of colors : " + str(len(identifiedColors)))
+
 
     #Create a dictionary to receive the colors and another for the index
     colors, arduinoIndex = {}, {}
@@ -150,7 +152,15 @@ def process(theFile):
                 else:
                     print("\Warning : an index in the ppm array was not in range (1-576).\nCheck the ppm file.")
 
-    print("Number of pixels to draw : " + str(len(arduinoIndex)))
+    #Send back some info
+    #RECODE THIS TO GUI
+    #print("\nReading file : " + theFile)
+    #print("\nNumber of colors : " + str(len(identifiedColors)))
+    row=app.getRow()
+    app.addLabel("label-filename", "File : " + theName, row, 0)
+    app.addLabel("label-colnum", "Colors in the file : " + str(len(identifiedColors)), row, 1)
+    app.addLabel("text-pixnum", "Number of pixels to draw : " + str(len(arduinoIndex)), row, 2)
+
 
     #This class to dynamically create as many lists as we have colors
     class ColorArray:
@@ -160,18 +170,19 @@ def process(theFile):
             self.name = name + str(id)
             self.index_array = [x for x, y in index.items() if y == id] if index else []
 
-    #Slice name to extract a name to use
-    splitName = theFile.split("/")#Split the filename
-    theName = splitName[len(splitName)-1]#Keep only the last part
-    theName = theName[:-4]#Remove the .ppm at the end
-
-    print("Using variable name : %s\n" % theName)
 
     #List comprehension to fill the lists with the values from arduinoIndex dictionary
     result = [ColorArray(id, color, theName, arduinoIndex) for id, color in colors.items()]
 
     for c in result:
-        print("Color %s : %s - Pixels : %d" % (c.id, c.color, len(c.index_array)))
+        row=app.getRow()
+        app.addLabel("label-color" + str(c.id), "Color " + str(c.id)+" : " + str(c.color), row, 0, colspan=2)
+        app.addLabel("label-pixels" + str(c.id), "Pixels : " + str(len(c.index_array)), row, 2)
+
+    app.addLabel("before-setup", "Copy/Paste this part before your setup():", colspan=3)
+    app.setLabelBg("before-setup", "red")
+    #app.setMessage("text-pixcomment", "//Pixels " + str(theName))
+
 
     with open(theName, 'w') as f:
         f.write("Copy/Paste this part before your setup():\n\n")
@@ -198,9 +209,6 @@ app.go()
 '''
 Improvements to do :
 
-- Gamma correction (in arduino or in this script)!
-- Improve slicing / naming of file creations
+- Aesthetics ! The GUI looks so bad :)
 - Replace loop-list creations by list comprehensions when possible
-- Prompt user input for pointing to file
-- Make the program graphical using an external lib ?
 '''
