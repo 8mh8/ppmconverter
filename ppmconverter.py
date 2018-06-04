@@ -18,18 +18,22 @@ It writes a file using the same name as the ppm file name giving two blocks that
 
 #import libs
 from appJar import gui
+from Tkinter import Tk
 
 #create GUI variable
 app = gui("PPM Converter", "600x400")
 app.setFont(10)
+app.setExpand("both")
 
 app.addLabel("title", "Welcome to ppmconverter", colspan=3)
 app.setLabelBg("title", "green")
 
-#Get the file and process it
+#create a clipboard object
+clipboard = Tk()
+
+#Get the file
 app.addFileEntry("Filename :", colspan=3)
 app.setFocus("Filename :")
-
 
 #Add buttons
 def press(button):
@@ -181,7 +185,28 @@ def process(theFile):
 
     app.addLabel("before-setup", "Copy/Paste this part before your setup():", colspan=3)
     app.setLabelBg("before-setup", "red")
-    #app.setMessage("text-pixcomment", "//Pixels " + str(theName))
+    text_setup = "// Pixels " + theName + " :\n"
+    for c in result:
+        text_setup = text_setup + "const uint16_t PROGMEM %s[] = {" % c.name
+        text_setup = text_setup + str(c.index_array)[1:-1] + "};\n"
+
+    #TRASH
+    #app.addMessage("text-before-setup", "//Pixels " + theName + "\n" + text_setup, colspan=3)
+    #app.setMessageAspect("text-before-setup", 300)
+    #app.setMessageAlign("text-before-setup", "left")
+
+
+    #Add copy button
+    def press(button):
+        if button == "Copy":
+            clipboard.withdraw()
+            clipboard.clipboard_clear()
+            clipboard.clipboard_append(text_setup)
+            clipboard.update()
+            clipboard.destroy()
+
+    app.addButtons(["Copy"], press, colspan=3)
+
 
 
     with open(theName, 'w') as f:
