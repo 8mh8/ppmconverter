@@ -28,9 +28,6 @@ app.setExpand("both")
 app.addLabel("title", "Welcome to ppmconverter", colspan=3)
 app.setLabelBg("title", "green")
 
-#create a clipboard object
-clipboard = Tk()
-
 #Get the file
 app.addFileEntry("Filename :", colspan=3)
 app.setFocus("Filename :")
@@ -199,6 +196,7 @@ def process(theFile):
     #Add copy button
     def press(button):
         if button == "Copy":
+            clipboard = Tk()
             clipboard.withdraw()
             clipboard.clipboard_clear()
             clipboard.clipboard_append(text_setup)
