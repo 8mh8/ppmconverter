@@ -42,6 +42,7 @@ def press(button):
 
 app.addButtons(["OK", "Exit"], press, colspan=3)
 
+
 def process(theFile):
     #Slice name to extract a name to use
     splitName = theFile.split("/")#Split the filename
@@ -154,16 +155,14 @@ def process(theFile):
                     print("\Warning : an index in the ppm array was not in range (1-576).\nCheck the ppm file.")
 
     #Send back some info
-    #RECODE THIS TO GUI
-    #print("\nReading file : " + theFile)
-    #print("\nNumber of colors : " + str(len(identifiedColors)))
+    #THIS PART NEEDS A HANDLE TO SCROLL !!
     row=app.getRow()
     app.addLabel("label-filename", "File : " + theName, row, 0)
     app.addLabel("label-colnum", "Colors in the file : " + str(len(identifiedColors)), row, 1)
     app.addLabel("text-pixnum", "Number of pixels to draw : " + str(len(arduinoIndex)), row, 2)
 
 
-    #This class to dynamically create as many lists as we have colors
+    #This class to create as many lists as we have colors
     class ColorArray:
         def __init__(self, id, color, name, index = None):
             self.id = id
@@ -175,54 +174,53 @@ def process(theFile):
     #List comprehension to fill the lists with the values from arduinoIndex dictionary
     result = [ColorArray(id, color, theName, arduinoIndex) for id, color in colors.items()]
 
+    #List the colors in GUI
     for c in result:
         row=app.getRow()
         app.addLabel("label-color" + str(c.id), "Color " + str(c.id)+" : " + str(c.color), row, 0, colspan=2)
         app.addLabel("label-pixels" + str(c.id), "Pixels : " + str(len(c.index_array)), row, 2)
 
-    app.addLabel("before-setup", "Copy/Paste this part before your setup():", colspan=3)
+    #Bloc to copy/paste before setup() in Arduino
+    row=app.getRow()
+    app.addLabel("before-setup", "Copy/Paste this part before your setup():", row, 0, colspan=2)
     app.setLabelBg("before-setup", "red")
     text_setup = "// Pixels " + theName + " :\n"
     for c in result:
         text_setup = text_setup + "const uint16_t PROGMEM %s[] = {" % c.name
         text_setup = text_setup + str(c.index_array)[1:-1] + "};\n"
 
-    #TRASH
-    #app.addMessage("text-before-setup", "//Pixels " + theName + "\n" + text_setup, colspan=3)
-    #app.setMessageAspect("text-before-setup", 300)
-    #app.setMessageAlign("text-before-setup", "left")
-
-
     #Add copy button
     def press(button):
-        if button == "Copy":
+        if button == "Copy before setup()":
             clipboard = Tk()
             clipboard.withdraw()
             clipboard.clipboard_clear()
             clipboard.clipboard_append(text_setup)
             clipboard.update()
             clipboard.destroy()
+    app.addButtons(["Copy before setup()"], press, row, 2)
 
-    app.addButtons(["Copy"], press, colspan=3)
+    #Bloc to copy/paste in loop() in Arduino
+    row=app.getRow()
+    app.addLabel("in-loop", "Copy/Paste this part in your loop():", row, 0, colspan=2)
+    app.setLabelBg("in-loop", "orange")
+    text_loop = "// Draw %s :" % theName
+    for c in result:
+        text_loop = text_loop + "\nfor (int i = 0; i < %d; i++){matrix.setPixelColor(pgm_read_word_near(&%s[i]), %s);}" % (len(c.index_array), c.name, str(c.color).replace("\'", "").replace("(","").replace(")",""))
+    text_loop = text_loop + "\nmatrix.show();"
+    text_loop = text_loop + "\ndelay(delay_var);"
+    text_loop = text_loop + "\nmatrix.fillScreen(0);"
 
-
-
-    with open(theName, 'w') as f:
-        f.write("Copy/Paste this part before your setup():\n\n")
-        f.write("//Pixels %s\n" % theName)
-        for c in result:
-            f.write("const uint16_t PROGMEM %s[] = {" % c.name)
-            f.write(str(c.index_array)[1:-1])
-            f.write("};")
-            f.write("\n")
-
-        f.write("\n\nCopy/Paste this part in your loop():\n\n")
-        f.write("//Draw %s" % theName)
-        for c in result:
-            f.write("\nfor (int i = 0; i < %d; i++){matrix.setPixelColor(pgm_read_word_near(&%s[i]), %s);}" % (len(c.index_array), c.name, str(c.color).replace("\'", "").replace("(","").replace(")","")))
-        f.write("\nmatrix.show();")
-        f.write("\ndelay(delay_var);")
-        f.write("\nmatrix.fillScreen(0);")
+    #Add copy button
+    def press(button):
+        if button == "Copy to loop()":
+            clipboard = Tk()
+            clipboard.withdraw()
+            clipboard.clipboard_clear()
+            clipboard.clipboard_append(text_loop)
+            clipboard.update()
+            clipboard.destroy()
+    app.addButtons(["Copy to loop()"], press, row, 2)
 
 
 #Launch the GUI
@@ -232,6 +230,12 @@ app.go()
 '''
 Improvements to do :
 
-- Aesthetics ! The GUI looks so bad :)
+- Needs a RESET button so we can use the program on multiple PPM files without having to relaunch itp
+- Aesthetics :
+    - add paddings
+    - add a small explanation of what file to use
+    - add a handle to scroll the section where the colors are listed : when the ppm is dense in different colors the GUI becomes unreadable
+- Refine the code, create functions and call them appropriately
 - Replace loop-list creations by list comprehensions when possible
+- Replace string concatenation by using .join method instead of + operand
 '''
