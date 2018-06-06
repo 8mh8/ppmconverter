@@ -20,18 +20,62 @@ It writes a file using the same name as the ppm file name giving two blocks that
 from appJar import gui
 from Tkinter import Tk
 
-#create GUI variable
-app = gui("PPM Converter", "600x400")
-app.setFont(10)
-app.setExpand("both")
+#Structure the application
+class ppmConverter():
 
-app.addLabel("title", "Welcome to ppmconverter", colspan=3)
-app.setLabelBg("title", "green")
+    #Build the GUI
+    def Prepare(self, app):
+        #Form GUI
+        app.setTitle("PPM Converter")
+        app.setFont(10)
+        app.setExpand("both")
+
+        #Add file entry section & addButtons
+        app.addFileEntry("Filename :", colspan=3)
+        app.setFocus("Filename :")
+        app.addButtons(["OK", "Reset", "Exit"], self.Submit, colspan=3)
+
+        return app
+
+    #Build and start the app
+    def Start(self):
+        app = gui("PPM Converter", "600x400")
+
+        #Run the prebuild method
+        app = self.Prepare(app)
+
+        #Make the app class-accessible
+        self.app = app
+
+        #Start appJar loop
+        app.go()
+
+    #Define method when the user clicks on the buttons
+    def Submit(self, btnName):
+        if btnName == "Exit":
+            self.app.stop()
+        elif btnName == "OK":
+            filename = self.app.getEntry("Filename :")
+            process(filename)
+
+
+
+
+
+
+#create GUI variable
+#app = gui("PPM Converter", "600x400")
+#app.setFont(10)
+#app.setExpand("both")
+
+#app.addLabel("title", "Welcome to ppmconverter", colspan=3)
+#app.setLabelBg("title", "green")
 
 #Get the file
-app.addFileEntry("Filename :", colspan=3)
-app.setFocus("Filename :")
+#app.addFileEntry("Filename :", colspan=3)
+#app.setFocus("Filename :")
 
+'''
 #Add buttons
 def press(button):
     if button == "Exit":
@@ -39,8 +83,8 @@ def press(button):
     elif button == "OK":
         filename = app.getEntry("Filename :")
         process(filename)
-
-app.addButtons(["OK", "Exit"], press, colspan=3)
+'''
+#app.addButtons(["OK", "Reset", "Exit"], press, colspan=3)
 
 
 def process(theFile):
@@ -156,10 +200,10 @@ def process(theFile):
 
     #Send back some info
     #THIS PART NEEDS A HANDLE TO SCROLL !!
-    row=app.getRow()
-    app.addLabel("label-filename", "File : " + theName, row, 0)
-    app.addLabel("label-colnum", "Colors in the file : " + str(len(identifiedColors)), row, 1)
-    app.addLabel("text-pixnum", "Number of pixels to draw : " + str(len(arduinoIndex)), row, 2)
+    row=App.getRow()
+    App.addLabel("label-filename", "File : " + theName, row, 0)
+    App.addLabel("label-colnum", "Colors in the file : " + str(len(identifiedColors)), row, 1)
+    App.addLabel("text-pixnum", "Number of pixels to draw : " + str(len(arduinoIndex)), row, 2)
 
 
     #This class to create as many lists as we have colors
@@ -224,7 +268,11 @@ def process(theFile):
 
 
 #Launch the GUI
-app.go()
+#app.go()
+
+#Create an instance of the application and start it
+App = ppmConverter()
+App.Start()
 
 
 '''
