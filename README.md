@@ -18,3 +18,19 @@ It will identify the number of colors used and convert the "ppm" index to "ardui
     the matrix is read from bottom right to top left, by sub-matrixs of 8x8. 9 of them in total.
 
 The program will display the colors in the file in RGB format and two buttons will copy to the clipboard the blocks that can be pasted in the Arduino code to display the pixel art.
+
+
+##############
+IMPROVEMENTS :
+##############
+
+Major :
+- Add a fail-safe that tests the file and returns an error if it does not have the correct amount of lines
+- Add warning message to gui if process file goes wrong
+- See if appJar has a copy/paste built-in function to replace tk clipboard object
+
+Minor :
+- Check, clarify and clean the comments
+- Replace loop-list creations by list comprehensions when possible
+- Replace string concatenation by using .join method instead of + operand
+- Add a status bar to display the infos of the files instead of inside the gui

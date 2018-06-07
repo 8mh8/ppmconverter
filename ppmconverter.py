@@ -16,13 +16,19 @@ class ppmConverter():
     def Prepare(self, app):
         #Form GUI
         app.setTitle("PPM Converter")
+        app.setPadding([10,10])
+        app.setInPadding([5,5])
         app.setFont(10)
         app.setExpand("both")
+
+        #Add some info
+        app.addMessage("info", "Select a 24x24 image exported in PPM format using ASCII encoding", colspan=3)
+        app.setMessageWidth("info", 950)
 
         #Add file entry section & addButtons
         app.addFileEntry("Filename :", colspan=3)
         app.setFocus("Filename :")
-        app.addButtons(["OK", "Reset", "Exit"], self.Submit, colspan=3)
+        app.addButtons(["OK", "Exit"], self.Submit, colspan=3)
 
         #Add info on file section
         row=app.getRow()
@@ -62,9 +68,6 @@ class ppmConverter():
     def Submit(self, btnName):
         if btnName == "Exit":
             self.app.stop()
-        #Needs fixing, currently it clears the whole GUI
-        elif btnName == "Reset":
-            self.app.removeAllWidgets()
         elif btnName == "OK":
             filename = self.app.getEntry("Filename :")
             self.text_setup, self.text_loop = self.process(filename)
@@ -89,7 +92,7 @@ class ppmConverter():
             clipboard.destroy()
 
 
-    #Method to process the file given and create the blocks to copy to Arduino code
+    #Method to process the file and create the blocks to copy to Arduino code
     def process(self, theFile):
         #Slice name to extract a name to use
         splitName = theFile.split("/")#Split the filename
@@ -209,21 +212,13 @@ class ppmConverter():
         self.app.setLabel("label-colnum", "Colors in the file : " + str(len(identifiedColors)))
         self.app.setLabel("text-pixnum", "Number of pixels to draw : " + str(len(arduinoIndex)))
 
-
-        #List the colors in GUI
-        #THIS PART NEEDS A HANDLE TO SCROLL !!
-        for c in result:
-            row=self.app.getRow()
-            self.app.addLabel("label-color" + theName + str(c.id), "Color " + str(c.id)+" : " + str(c.color), row, 0, colspan=2)
-            self.app.addLabel("label-pixels" + theName + str(c.id), "Pixels : " + str(len(c.index_array)), row, 2)
-
-        #Block to copy/paste before setup() in Arduino
+        #Create the block to copy/paste before setup() in Arduino
         text_setup = "// Pixels " + theName + " :\n"
         for c in result:
             text_setup = text_setup + "const uint16_t PROGMEM %s[] = {" % c.name
             text_setup = text_setup + str(c.index_array)[1:-1] + "};\n"
 
-        #Block to copy/paste in loop() in Arduino
+        #Create the block to copy/paste in loop() in Arduino
         text_loop = "// Draw %s :" % theName
         for c in result:
             text_loop = text_loop + "\nfor (int i = 0; i < %d; i++){matrix.setPixelColor(pgm_read_word_near(&%s[i]), %s);}" % (len(c.index_array), c.name, str(c.color).replace("\'", "").replace("(","").replace(")",""))
@@ -246,22 +241,3 @@ class ColorArray:
 #Create an instance of the application and start it
 App = ppmConverter()
 App.Start()
-
-
-'''
-Improvements to do :
-- Fix RESET button : Need to destroy all label widgets created in process()
-- OR : remove Color display && remove RESET button
-- Add exceptions when you reuse a file that has already been used
-- Add warning message to gui if process file goes wrong
-- Aesthetics :
-    - add paddings
-    - add a small explanation of what file to use
-    - add a handle to scroll the section where the colors are listed : when the ppm is dense in different colors the GUI becomes unreadable
-- See if appJar has a copy/paste built-in function to replace tk clipboard object
-- Move comment header to README in github
-- Put in failsafes
-- Replace loop-list creations by list comprehensions when possible
-- Replace string concatenation by using .join method instead of + operand
-- Check, clarify and clean the comments
-'''
