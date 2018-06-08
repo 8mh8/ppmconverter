@@ -1,10 +1,13 @@
-# ppmconverter
+# PPM Converter
+
 A small python program to convert ppm formatted images into pixel arrays for displaying on a ledmatrix using Arduino.
+
+## USAGE :
 
 This program expects a ppm file for a 24x24 pixel image exported in ASCII format and dumps array list data for writing with Arduino to a 24x24 ledmatrix.
 
-This program is beta.
-It is barely finished and does not have fail safes yet.
+This program is functional but barely finished and does not have fail safes yet.
+
 It will return unexpected results if used otherwise than with a 24x24 ASCII ppm files which contains exactly :
 -1732 lines
 -a 4 line header
@@ -20,9 +23,8 @@ It will identify the number of colors used and convert the "ppm" index to "ardui
 The program will display the colors in the file in RGB format and two buttons will copy to the clipboard the blocks that can be pasted in the Arduino code to display the pixel art.
 
 
-##############
-IMPROVEMENTS :
-##############
+## IMPROVEMENTS :
+
 
 Major :
 - Add a fail-safe that tests the file and returns an error if it does not have the correct amount of lines
